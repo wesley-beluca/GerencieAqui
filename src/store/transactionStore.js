@@ -19,16 +19,16 @@ export const useTransactionStore = defineStore('transactions', {
     recentTransactions: (state) => {
       return state.transactions
         .slice()
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .sort((a, b) => new Date(b.data) - new Date(a.data))
         .slice(0, 5)
     },
     
     incomeTransactions: (state) => {
-      return state.transactions.filter(t => t.type === 'RECEITA')
+      return state.transactions.filter(t => t.tipo === 1)
     },
     
     expenseTransactions: (state) => {
-      return state.transactions.filter(t => t.type === 'DESPESA')
+      return state.transactions.filter(t => t.tipo === 0)
     }
   },
   
@@ -39,18 +39,13 @@ export const useTransactionStore = defineStore('transactions', {
       
       try {
         const response = await api.get('/Transacoes')
-        console.log('Resposta da API de transações:', response.data)
-        
-        // Extrair os dados do campo 'data' da resposta
+
         if (response.data && response.data.success) {
-          // Usar diretamente os dados da API sem transformação
           this.transactions = response.data.data || []
-          console.log('Transações carregadas na store:', this.transactions)
         } else {
           this.transactions = []
         }
       } catch (error) {
-        console.error('Erro ao buscar transações:', error)
         this.error = error.response?.data?.message || 'Erro ao buscar transações'
       } finally {
         this.isLoading = false
@@ -61,7 +56,6 @@ export const useTransactionStore = defineStore('transactions', {
       this.isLoading = true
       
       try {
-        // Obter data atual e primeiro dia do mês para o período
         const dataFim = new Date().toISOString().split('T')[0]
         const dataInicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
         
@@ -84,19 +78,23 @@ export const useTransactionStore = defineStore('transactions', {
       this.error = null
       
       try {
-        // Usar o formato esperado pela API diretamente
+        // Formatar a data para enviar apenas a data sem o horário
+        let formattedDate = null
+        if (transaction.data) {
+          const date = new Date(transaction.data)
+          formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00:00:00`
+        }
+        
         const transactionDTO = {
           descricao: transaction.descricao,
           valor: transaction.valor,
-          data: transaction.data,
+          data: formattedDate,
           tipo: transaction.tipo
         }
         
-        console.log('Enviando transação para API:', transactionDTO)
         const response = await api.post('/Transacoes', transactionDTO)
         
         if (response.data && response.data.success) {
-          // Adicionar a transação retornada pela API diretamente à lista
           const newTransaction = response.data.data
           this.transactions.push(newTransaction)
           return newTransaction
@@ -104,7 +102,7 @@ export const useTransactionStore = defineStore('transactions', {
           throw new Error(response.data.message || 'Erro ao criar transação')
         }
       } catch (error) {
-        console.error('Erro ao criar transação:', error)
+        // O erro será lançado para ser tratado pelo componente
         this.error = error.response?.data?.message || error.message || 'Erro ao criar transação'
         throw error
       } finally {
@@ -117,22 +115,25 @@ export const useTransactionStore = defineStore('transactions', {
       this.error = null
       
       try {
-        // Usar o formato esperado pela API diretamente
+        // Formatar a data para enviar apenas a data sem o horário
+        let formattedDate = null
+        if (transaction.data) {
+          const date = new Date(transaction.data)
+          formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00:00:00`
+        }
+        
         const transactionDTO = {
           descricao: transaction.descricao,
           valor: transaction.valor,
-          data: transaction.data,
+          data: formattedDate,
           tipo: transaction.tipo
         }
         
-        console.log('Atualizando transação na API:', id, transactionDTO)
         const response = await api.put(`/Transacoes/${id}`, transactionDTO)
         
         if (response.data && response.data.success) {
-          // Usar a transação retornada pela API diretamente
           const updatedTransaction = response.data.data
           
-          // Atualizar a transação na lista
           const index = this.transactions.findIndex(t => t.id === id)
           if (index !== -1) {
             this.transactions[index] = updatedTransaction
@@ -143,7 +144,6 @@ export const useTransactionStore = defineStore('transactions', {
           throw new Error(response.data.message || 'Erro ao atualizar transação')
         }
       } catch (error) {
-        console.error('Erro ao atualizar transação:', error)
         this.error = error.response?.data?.message || error.message || 'Erro ao atualizar transação'
         throw error
       } finally {
@@ -156,7 +156,6 @@ export const useTransactionStore = defineStore('transactions', {
       this.error = null
       
       try {
-        console.log('Excluindo transação:', id)
         const response = await api.delete(`/Transacoes/${id}`)
         
         if (response.data && response.data.success !== false) {
@@ -166,7 +165,6 @@ export const useTransactionStore = defineStore('transactions', {
           throw new Error(response.data?.message || 'Erro ao excluir transação')
         }
       } catch (error) {
-        console.error('Erro ao excluir transação:', error)
         this.error = error.response?.data?.message || error.message || 'Erro ao excluir transação'
         throw error
       } finally {

@@ -9,7 +9,7 @@ body {
   font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #333;
+  color: var(--text-color);
 }
 
 /* Variáveis de cores baseadas na imagem */
@@ -25,7 +25,9 @@ body {
   --gray-color: #6c757d;
   --sidebar-bg: #ffffff;
   --card-bg: #ffffff;
-  --text-color: #ffffff;
+  --text-color: #333333;
+  --header-color: #ffffff;
+  --border-color: #e0e0e0;
 }
 
 /* Estilos globais para botões */
@@ -40,6 +42,7 @@ body {
 .p-inputnumber .p-inputtext,
 .p-inputnumber-input {
   padding: 0.3rem !important;
+  color: var(--text-color) !important;
 }
 
 /* Correção para o componente InputNumber */
@@ -87,7 +90,7 @@ body {
 .p-dialog .p-dialog-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--header-color);
 }
 
 .p-dialog .field {
@@ -102,7 +105,7 @@ body {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .p-dialog .confirmation-content {
@@ -259,5 +262,5 @@ body {
 }
 
 .card-monthly {
-  background-color: #00acc1;
-} 
+  background-color: var(--secondary-color);
+}

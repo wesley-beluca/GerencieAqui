@@ -37,7 +37,7 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--light-color);
 }
 
 .not-found-container {
@@ -48,7 +48,7 @@ export default {
 }
 
 .not-found-content {
-  background-color: white;
+  background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 3rem 2rem;

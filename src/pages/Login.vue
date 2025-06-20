@@ -156,13 +156,13 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--light-color);
 }
 
 .login-container {
   width: 100%;
   max-width: 400px;
-  background-color: white;
+  background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 2rem;
@@ -191,7 +191,7 @@ export default {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--dark-color);
+  color: var(--header-color);
 }
 
 .login-form p {
@@ -207,6 +207,11 @@ export default {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-group .p-inputtext {
+  color: var(--text-color);
 }
 
 .form-footer {

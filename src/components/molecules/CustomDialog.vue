@@ -8,7 +8,7 @@
     :closable="closable"
     :closeOnEscape="closeOnEscape"
     :dismissableMask="dismissableMask"
-    class="custom-dialog text-white"
+    class="custom-dialog"
   >
     <div class="custom-dialog-content">
       <slot></slot>
@@ -21,7 +21,7 @@
             v-if="showCancelButton" 
             :label="cancelLabel" 
             icon="pi pi-times" 
-            class="p-button-text p-2" 
+            :class="['p-2', cancelButtonClass, 'cancel-button']" 
             @click="onCancel" 
           />
           <Button 
@@ -90,6 +90,10 @@ export default {
       type: String,
       default: 'p-button-primary'
     },
+    cancelButtonClass: {
+      type: String,
+      default: 'p-button-text'
+    },
     isConfirmation: {
       type: Boolean,
       default: false
@@ -115,14 +119,19 @@ export default {
 .custom-dialog .p-dialog-header {
   padding: 1.5rem;
   background-color: var(--primary-color);
-  color: white;
+  color: var(--header-color);
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
+}
+
+.custom-dialog .p-dialog-header * {
+  color: var(--header-color);
 }
 
 .custom-dialog .p-dialog-title {
   font-weight: 600;
   font-size: 1.25rem;
+  color: var(--header-color);
 }
 
 .custom-dialog .p-dialog-content {
@@ -183,5 +192,11 @@ export default {
 /* Estilos específicos para diálogo de sucesso */
 .custom-dialog.success .p-dialog-header {
   background-color: var(--success-color);
+}
+
+.cancel-button,
+.cancel-button .p-button-label,
+.cancel-button .p-button-icon {
+  color: var(--text-color) !important;
 }
 </style>

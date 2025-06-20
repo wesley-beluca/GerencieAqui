@@ -1,109 +1,111 @@
 <template>
   <MainLayout>
     <div class="transactions-page">
-    <div class="page-header">
-      <h1>Transações</h1>
-      <Button label="Nova Transação" icon="pi pi-plus" @click="openNewTransactionDialog" />
-    </div>
+      <div class="content-wrapper">
+        <div class="page-header">
+          <Button label="Nova Transação" icon="pi pi-plus" @click="openNewTransactionDialog" />
+        </div>
 
-    <div class="card">
-      <DataTable 
-        :value="transactions" 
-        :loading="isLoading"
-        stripedRows
-        paginator 
-        :rows="10" 
-        :rowsPerPageOptions="[5, 10, 20, 50]"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} transações"
-        responsiveLayout="scroll"
-        class="p-datatable-sm"
-      >
-        <Column field="descricao" header="Descrição" sortable />
-        <Column field="tipo" header="Tipo" sortable>
-          <template #body="slotProps">
-            <Tag 
-              :value="slotProps.data.tipo === 1 ? 'Receita' : 'Despesa'" 
-              :severity="slotProps.data.tipo === 1 ? 'success' : 'danger'" 
+        <div class="transaction-card card">
+          <DataTable 
+            :value="transactions" 
+            :loading="isLoading"
+            stripedRows
+            paginator 
+            :rows="10" 
+            :rowsPerPageOptions="[5, 10, 20, 50]"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} transações"
+            responsiveLayout="scroll"
+            class="p-datatable-sm transaction-table"
+          >
+            <Column field="descricao" header="Descrição" sortable />
+            <Column field="tipo" header="Tipo" sortable>
+              <template #body="slotProps">
+                <Tag 
+                  :value="slotProps.data.tipo === 1 ? 'Receita' : 'Despesa'" 
+                  :severity="slotProps.data.tipo === 1 ? 'success' : 'danger'" 
+                />
+              </template>
+            </Column>
+            <Column field="data" header="Data" sortable>
+              <template #body="slotProps">
+                {{ formatDate(slotProps.data.data) }}
+              </template>
+            </Column>
+            <Column field="valor" header="Valor" sortable>
+              <template #body="slotProps">
+                <span :class="{ 'text-green-500': slotProps.data.tipo === 1, 'text-red-500': slotProps.data.tipo === 0 }">
+                  {{ formatCurrency(slotProps.data.valor) }}
+                </span>
+              </template>
+            </Column>
+            <Column header="Ações">
+              <template #body="slotProps">
+                <div class="flex gap-3">
+                  <Button icon="pi pi-pencil" class="p-button-text p-button-sm" @click="editTransaction(slotProps.data)" />
+                  <Button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" @click="confirmDelete(slotProps.data)" />
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+
+        <!-- Dialog para nova transação -->
+        <CustomDialog 
+          v-model="transactionDialog" 
+          :header="dialogTitle" 
+          confirmLabel="Salvar"
+          :confirmButtonClass="'p-button-success'"
+          @cancel="hideDialog"
+          @confirm="saveTransaction"
+          class="transaction-dialog"
+        >
+          <div class="field">
+            <label for="descricao">Descrição</label>
+            <InputText id="descricao" v-model="transaction.descricao" required autofocus />
+          </div>
+
+          <div class="field">
+            <label for="tipo">Tipo</label>
+            <Dropdown 
+              id="tipo" 
+              v-model="transaction.tipo" 
+              :options="tiposTransacao" 
+              optionLabel="label" 
+              optionValue="value" 
+              placeholder="Selecione o tipo"
             />
-          </template>
-        </Column>
-        <Column field="data" header="Data" sortable>
-          <template #body="slotProps">
-            {{ formatDate(slotProps.data.data) }}
-          </template>
-        </Column>
-        <Column field="valor" header="Valor" sortable>
-          <template #body="slotProps">
-            <span :class="{ 'text-green-500': slotProps.data.tipo === 1, 'text-red-500': slotProps.data.tipo === 0 }">
-              {{ formatCurrency(slotProps.data.valor) }}
-            </span>
-          </template>
-        </Column>
-        <Column header="Ações">
-          <template #body="slotProps">
-            <div class="flex gap-2">
-              <Button icon="pi pi-pencil" class="p-button-text p-button-sm" @click="editTransaction(slotProps.data)" />
-              <Button icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" @click="confirmDelete(slotProps.data)" />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
+          </div>
 
-    <!-- Dialog para nova transação -->
-    <CustomDialog 
-      v-model="transactionDialog" 
-      :header="dialogTitle" 
-      confirmLabel="Salvar"
-      :confirmButtonClass="'p-button-success'"
-      @cancel="hideDialog"
-      @confirm="saveTransaction"
-    >
-      <div class="field">
-        <label for="descricao">Descrição</label>
-        <InputText id="descricao" v-model="transaction.descricao" required autofocus />
-      </div>
+          <div class="field">
+            <label for="data">Data</label>
+            <Calendar id="data" v-model="transaction.data" dateFormat="dd/mm/yy" />
+          </div>
 
-      <div class="field">
-        <label for="tipo">Tipo</label>
-        <Dropdown 
-          id="tipo" 
-          v-model="transaction.tipo" 
-          :options="tiposTransacao" 
-          optionLabel="label" 
-          optionValue="value" 
-          placeholder="Selecione o tipo"
+          <div class="field">
+            <label for="valor">Valor</label>
+            <InputNumber id="valor" v-model="transaction.valor" mode="currency" currency="BRL" locale="pt-BR" />
+          </div>
+        </CustomDialog>
+
+        <!-- Dialog de confirmação de exclusão -->
+        <ConfirmationDialog 
+          v-model="deleteDialog" 
+          header="Confirmar exclusão" 
+          message="Tem certeza que deseja excluir esta transação?"
+          type="danger"
+          confirmLabel="Sim"
+          cancelLabel="Não"
+          confirmButtonClass="p-button-danger"
+          @cancel="deleteDialog = false"
+          @confirm="deleteSelectedTransaction"
         />
+
+        <!-- Toast para mensagens -->
+        <Toast />
       </div>
-
-      <div class="field">
-        <label for="data">Data</label>
-        <Calendar id="data" v-model="transaction.data" dateFormat="dd/mm/yy" />
-      </div>
-
-      <div class="field">
-        <label for="valor">Valor</label>
-        <InputNumber id="valor" v-model="transaction.valor" mode="currency" currency="BRL" locale="pt-BR" />
-      </div>
-    </CustomDialog>
-
-    <!-- Dialog de confirmação de exclusão -->
-    <ConfirmationDialog 
-      v-model="deleteDialog" 
-      header="Confirmar exclusão" 
-      message="Tem certeza que deseja excluir esta transação?"
-      type="danger"
-      confirmLabel="Sim"
-      cancelLabel="Não"
-      confirmButtonClass="p-button-danger"
-      @cancel="deleteDialog = false"
-      @confirm="deleteSelectedTransaction"
-    />
-
-    <!-- Toast para mensagens -->
-    <Toast />
-  </div>
+    </div>
   </MainLayout>
 </template>
 
@@ -263,37 +265,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.transactions-page {
-  height: 100%;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.page-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.confirmation-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

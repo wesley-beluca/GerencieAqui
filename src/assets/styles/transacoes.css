@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: 100%;
 }
 
 .page-actions {
@@ -23,6 +24,24 @@
   overflow-x: auto;
 }
 
+.content-wrapper {
+  padding: 0 1rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--header-color);
+}
+
 .transactions-table {
   width: 100%;
   border-collapse: collapse;
@@ -35,19 +54,57 @@
 }
 
 .transactions-table th {
-  background-color: #f8f9fa;
+  background-color: var(--light-color);
   font-weight: 600;
   color: var(--dark-color);
-  border-bottom: 2px solid #eee;
+  border-bottom: 2px solid var(--border-color, #eee);
 }
 
 .transactions-table td {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color, #eee);
 }
 
 .actions-cell {
   display: flex;
   gap: 0.5rem;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.transaction-card {
+  padding: 2rem;
+  margin: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.transaction-table {
+  margin: 0 1rem;
+  width: 100%;
+}
+
+/* DataTable customization */
+.p-datatable .p-datatable-header {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--border-color, #ddd);
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  background-color: var(--light-color);
+  color: var(--text-color);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-color: var(--border-color, #ddd);
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1rem;
+  border-color: var(--border-color, #ddd);
 }
 
 .type-expense {
@@ -112,6 +169,25 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 0;
+}
+
+/* Estilos para o modal de transação */
+.transaction-dialog :deep(.p-dialog-header) {
+  color: var(--header-color);
+}
+
+.transaction-dialog :deep(input),
+.transaction-dialog :deep(.p-dropdown-label),
+.transaction-dialog :deep(.p-calendar input),
+.transaction-dialog :deep(.p-inputnumber input) {
+  color: var(--text-color);
+}
+
+.transaction-dialog :deep(label) {
+  color: var(--text-color);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
 }
 
 @media (max-width: 768px) {

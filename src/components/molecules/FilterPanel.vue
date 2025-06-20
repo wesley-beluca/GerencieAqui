@@ -89,8 +89,8 @@ export default {
     // Opções de tipo
     const typeOptions = [
       { label: 'Todos', value: null },
-      { label: 'Receitas', value: 'RECEITA' },
-      { label: 'Despesas', value: 'DESPESA' }
+      { label: 'Receitas', value: 1 },
+      { label: 'Despesas', value: 0 }
     ]
     
     // Estado dos filtros
@@ -130,7 +130,7 @@ export default {
 
 <style>
 .filter-panel {
-  background-color: #fff;
+  background-color: var(--card-bg);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
@@ -148,6 +148,7 @@ export default {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
+  color: var(--text-color);
 }
 
 .filter-content {
@@ -170,6 +171,7 @@ export default {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  color: var(--text-color);
 }
 
 .filter-actions {

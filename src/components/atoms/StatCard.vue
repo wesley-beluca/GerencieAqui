@@ -71,7 +71,7 @@ export default {
   align-items: center;
   padding: 1.5rem;
   border-radius: 8px;
-  color: white;
+  color: var(--header-color);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

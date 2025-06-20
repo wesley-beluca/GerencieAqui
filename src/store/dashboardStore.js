@@ -75,7 +75,6 @@ export const useDashboardStore = defineStore('dashboard', {
           this.transacoesRecentes = transactionsResponse.data.data || []
         }
       } catch (error) {
-        console.error('Erro ao carregar dados do dashboard:', error)
         this.error = error.response?.data?.message || error.message || 'Erro ao carregar dados do dashboard'
       } finally {
         this.isLoading = false
@@ -124,7 +123,6 @@ export const useDashboardStore = defineStore('dashboard', {
           throw new Error(response.data?.message || 'Erro ao buscar dados dos gráficos')
         }
       } catch (error) {
-        console.error('Erro ao buscar dados dos gráficos:', error)
         this.error = error.response?.data?.message || error.message || 'Erro ao buscar dados dos gráficos'
       } finally {
         this.isLoading = false

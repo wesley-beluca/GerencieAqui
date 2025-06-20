@@ -183,12 +183,10 @@ export default {
       barChartData.datasets[1].data = expenseByMonth
       lineChartData.datasets[0].data = balanceByMonth
       
-      // Cálculo de despesas por categoria removido
+
     }
     
     const applyFilters = (filters) => {
-      console.log('Filtros aplicados:', filters)
-      // Implementar lógica de filtragem quando necessário
       fetchDashboardData()
     }
     
@@ -211,7 +209,7 @@ export default {
         // Atualizar gráficos com os dados das transações
         updateChartData()
       } catch (error) {
-        console.error('Erro ao buscar dados do dashboard:', error)
+        // Tratamento de erro silencioso
       }
     }
     
@@ -238,10 +236,7 @@ export default {
     
     // Função para lidar com a exportação de gráficos
     const handleChartExport = (format) => {
-      if (format === 'png') {
-        console.log('Exportando gráfico como PNG')
-        // Implementação da exportação para PNG pode ser adicionada aqui
-      }
+      // Implementação futura para exportação de gráficos
     }
     
     return {

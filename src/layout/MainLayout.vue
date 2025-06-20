@@ -41,7 +41,7 @@ export default {
     const authStore = useAuthStore()
     
     const pageTitle = computed(() => {
-      return route.name || 'Dashboard'
+      return route.name == 'Transacoes' ? 'Transações' : 'Dashboard'
     })
     
     const userName = computed(() => {
@@ -74,7 +74,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
+  background-color: var(--light-color);
   margin-left: 250px; /* Adiciona margem correspondente à largura da barra lateral */
   width: calc(100% - 250px); /* Ajusta a largura para evitar overflow horizontal */
 }
@@ -85,21 +85,21 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  background-color: white;
+  background-color: var(--card-bg);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .header-title h2 {
   font-size: 1.5rem;
   font-weight: 500;
-  color: var(--dark-color);
+  color: var(--text-color);
   margin: 0;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  color: var(--dark-color);
+  color: var(--text-color);
 }
 
 .user-info i {

@@ -18,6 +18,6 @@ export default {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--light-color);
 }
 </style>

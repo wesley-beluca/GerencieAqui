@@ -7,6 +7,7 @@
     :confirmLabel="confirmLabel"
     :cancelLabel="cancelLabel"
     :confirmButtonClass="confirmButtonClass"
+    :cancelButtonClass="cancelButtonClass"
     :isConfirmation="true"
     :class="dialogClass"
     @cancel="onCancel"
@@ -14,7 +15,7 @@
   >
     <div class="confirmation-content">
       <i :class="icon" />
-      <span>{{ message }}</span>
+      <span style="color: var(--text-color);">{{ message }}</span>
     </div>
   </CustomDialog>
 </template>
@@ -51,6 +52,10 @@ export default {
     confirmButtonClass: {
       type: String,
       default: 'p-button-primary'
+    },
+    cancelButtonClass: {
+      type: String,
+      default: 'p-button-text'
     },
     type: {
       type: String,
