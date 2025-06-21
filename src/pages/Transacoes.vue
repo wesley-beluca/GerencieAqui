@@ -3,6 +3,7 @@
     <div class="transactions-page">
       <div class="content-wrapper">
         <div class="page-header">
+          <div></div>
           <Button label="Nova Transação" icon="pi pi-plus" @click="openNewTransactionDialog" />
         </div>
 
@@ -17,7 +18,9 @@
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} transações"
             responsiveLayout="scroll"
-            class="p-datatable-sm transaction-table"
+            class="p-datatable-sm p-datatable-gridlines transaction-table"
+            :scrollable="true"
+            scrollHeight="flex"
           >
             <Column field="descricao" header="Descrição" sortable />
             <Column field="tipo" header="Tipo" sortable>
@@ -25,6 +28,7 @@
                 <Tag 
                   :value="slotProps.data.tipo === 1 ? 'Receita' : 'Despesa'" 
                   :severity="slotProps.data.tipo === 1 ? 'success' : 'danger'" 
+                  class="transaction-tag"
                 />
               </template>
             </Column>
@@ -114,6 +118,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useTransactionStore } from '../store'
 import { useToast } from 'primevue/usetoast'
 import MainLayout from '../layout/MainLayout.vue'
+import '../assets/styles/transacoes.css'
 
 export default {
   name: 'TransacoesPage',
