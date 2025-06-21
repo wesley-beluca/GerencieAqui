@@ -130,10 +130,17 @@ export default {
       updateChartData()
     })
     
-    // Função para atualizar dados dos gráficos
-    const updateChartData = () => {
+    // Função para atualizar apenas os gráficos com base nas transações filtradas
+    // Não modifica os valores dos cards que vem do backend
+    const updateChartDataOnly = () => {
       const transactions = transactionStore.transactions
-      if (!transactions || transactions.length === 0) return
+      if (!transactions || transactions.length === 0) {
+        // Se não houver transações, zerar os dados dos gráficos
+        barChartData.datasets[0].data = Array(6).fill(0)
+        barChartData.datasets[1].data = Array(6).fill(0)
+        lineChartData.datasets[0].data = Array(6).fill(0)
+        return
+      }
       
       // Dados para gráfico de barras - últimos 6 meses
       const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
@@ -161,6 +168,7 @@ export default {
         const transMonth = transDate.getMonth()
         const monthDiff = (currentMonth - transMonth + 12) % 12
         
+        // Calcular valores para os gráficos
         if (monthDiff < 6) {
           const monthIndex = 5 - monthDiff
           const value = Number(transaction.value || transaction.valor || 0)
@@ -182,33 +190,34 @@ export default {
       barChartData.datasets[0].data = incomeByMonth
       barChartData.datasets[1].data = expenseByMonth
       lineChartData.datasets[0].data = balanceByMonth
-      
-
     }
     
     const applyFilters = (filters) => {
-      fetchDashboardData()
+      // Usar os filtros de data inicial e final para buscar dados
+      fetchDashboardData(filters.dataInicio, filters.dataFim)
     }
     
     // Função para buscar dados do dashboard
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (dataInicio = null, dataFim = null) => {
       try {
-        // Buscar resumo financeiro do backend
-        await transactionStore.fetchDashboardSummary()
+        // Buscar resumo financeiro do backend com os filtros de data
+        await transactionStore.fetchDashboardSummary(dataInicio, dataFim)
         
-        // Atualizar cards com os dados do resumo
-        summaryData.salesTotal = transactionStore.summary.salesTotal
-        summaryData.expensesTotal = transactionStore.summary.expensesTotal
+        // Atualizar cards com os dados do resumo financeiro do backend
+        // Usar exatamente os campos retornados pela API
+        summaryData.salesTotal = transactionStore.summary.totalReceitas
+        summaryData.expensesTotal = transactionStore.summary.totalDespesas
         
-        // Calcular o saldo (receitas - despesas)
-        summaryData.balance = summaryData.salesTotal - summaryData.expensesTotal
+        // Calcular o saldo como a diferença entre receitas e despesas
+        summaryData.balance = transactionStore.summary.totalReceitas - transactionStore.summary.totalDespesas
         
-        // Buscar transações para atualizar gráficos
-        await transactionStore.fetchTransactions()
+        // Buscar transações para atualizar gráficos com os mesmos filtros de data
+        await transactionStore.fetchTransactions(dataInicio, dataFim)
         
-        // Atualizar gráficos com os dados das transações
-        updateChartData()
+        // Atualizar apenas os gráficos com os dados das transações
+        updateChartDataOnly()
       } catch (error) {
+        console.error('Erro ao buscar dados do dashboard:', error)
         // Tratamento de erro silencioso
       }
     }
@@ -227,6 +236,88 @@ export default {
           beginAtZero: true
         }
       }
+    }
+    
+    // Função para atualizar dados dos gráficos e cards com base nas transações
+    const updateChartData = () => {
+      const transactions = transactionStore.transactions
+      if (!transactions || transactions.length === 0) {
+        // Se não houver transações, zerar os valores
+        summaryData.salesTotal = 0
+        summaryData.expensesTotal = 0
+        summaryData.balance = 0
+        
+        // Zerar dados dos gráficos
+        barChartData.datasets[0].data = Array(6).fill(0)
+        barChartData.datasets[1].data = Array(6).fill(0)
+        lineChartData.datasets[0].data = Array(6).fill(0)
+        return
+      }
+      
+      // Dados para gráfico de barras - últimos 6 meses
+      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+      const currentDate = new Date()
+      const currentMonth = currentDate.getMonth()
+      
+      // Obter os últimos 6 meses
+      const last6Months = []
+      for (let i = 5; i >= 0; i--) {
+        const monthIndex = (currentMonth - i + 12) % 12
+        last6Months.push(months[monthIndex])
+      }
+      
+      // Atualizar labels
+      barChartData.labels = last6Months
+      lineChartData.labels = last6Months
+      
+      // Calcular receitas e despesas por mês
+      const incomeByMonth = Array(6).fill(0)
+      const expenseByMonth = Array(6).fill(0)
+      const balanceByMonth = Array(6).fill(0)
+      
+      // Variáveis para calcular os totais para os cards
+      let totalReceitas = 0
+      let totalDespesas = 0
+      
+      transactions.forEach(transaction => {
+        const transDate = new Date(transaction.date || transaction.data)
+        const transMonth = transDate.getMonth()
+        const monthDiff = (currentMonth - transMonth + 12) % 12
+        const value = Number(transaction.value || transaction.valor || 0)
+        
+        // Calcular totais para os cards
+        if (transaction.type === 'RECEITA' || transaction.tipo === 1) {
+          totalReceitas += value
+        } else {
+          totalDespesas += value
+        }
+        
+        // Calcular valores para os gráficos
+        if (monthDiff < 6) {
+          const monthIndex = 5 - monthDiff
+          
+          if (transaction.type === 'RECEITA' || transaction.tipo === 1) {
+            incomeByMonth[monthIndex] += value
+          } else {
+            expenseByMonth[monthIndex] += value
+          }
+        }
+      })
+      
+      // Atualizar os cards com os totais calculados
+      summaryData.salesTotal = totalReceitas
+      summaryData.expensesTotal = totalDespesas
+      summaryData.balance = totalReceitas - totalDespesas
+      
+      // Calcular saldo por mês
+      for (let i = 0; i < 6; i++) {
+        balanceByMonth[i] = incomeByMonth[i] - expenseByMonth[i]
+      }
+      
+      // Atualizar dados dos gráficos
+      barChartData.datasets[0].data = incomeByMonth
+      barChartData.datasets[1].data = expenseByMonth
+      lineChartData.datasets[0].data = balanceByMonth
     }
     
     // Inicializar dados ao montar o componente

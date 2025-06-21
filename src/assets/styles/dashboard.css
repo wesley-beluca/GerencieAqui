@@ -4,6 +4,48 @@
   gap: 1.5rem;
 }
 
+/* Estilos para o componente de filtro */
+.filter-panel {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.filter-content {
+  padding: 1rem;
+}
+
+/* Corrige a deformação dos calendários */
+.p-calendar {
+  width: 100%;
+}
+
+.p-calendar .p-inputtext {
+  width: 100%;
+  height: 38px;
+  color: var(--text-color);
+}
+
+/* Estilo para o calendário */
+.p-datepicker {
+  padding: 0.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.p-datepicker table td {
+  padding: 0.3rem;
+}
+
+.p-datepicker table td > span {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .dashboard-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

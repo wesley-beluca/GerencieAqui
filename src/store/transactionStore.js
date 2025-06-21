@@ -33,12 +33,22 @@ export const useTransactionStore = defineStore('transactions', {
   },
   
   actions: {
-    async fetchTransactions() {
+    async fetchTransactions(dataInicio = null, dataFim = null) {
       this.isLoading = true
       this.error = null
       
       try {
-        const response = await api.get('/Transacoes')
+        let url = '/Transacoes';
+        
+        // Adicionar parâmetros de data se fornecidos
+        if (dataInicio && dataFim) {
+          // Formatar as datas para o formato esperado pelo backend
+          const dataInicioFormatada = new Date(dataInicio).toISOString().split('T')[0];
+          const dataFimFormatada = new Date(dataFim).toISOString().split('T')[0];
+          url += `?dataInicio=${dataInicioFormatada}&dataFim=${dataFimFormatada}`;
+        }
+        
+        const response = await api.get(url);
 
         if (response.data && response.data.success) {
           this.transactions = response.data.data || []
@@ -52,19 +62,30 @@ export const useTransactionStore = defineStore('transactions', {
       }
     },
     
-    async fetchDashboardSummary() {
+    async fetchDashboardSummary(dataInicio = null, dataFim = null) {
       this.isLoading = true
       
       try {
-        const dataFim = new Date().toISOString().split('T')[0]
-        const dataInicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
+        // Se não forem fornecidas datas, usar o mês atual como padrão
+        const dataFimFormatada = dataFim 
+          ? new Date(dataFim).toISOString().split('T')[0] 
+          : new Date().toISOString().split('T')[0];
         
-        const response = await api.get(`/ResumoFinanceiro?dataInicio=${dataInicio}&dataFim=${dataFim}`)
+        const dataInicioFormatada = dataInicio 
+          ? new Date(dataInicio).toISOString().split('T')[0] 
+          : new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+        
+        const response = await api.get(`/ResumoFinanceiro?dataInicio=${dataInicioFormatada}&dataFim=${dataFimFormatada}`)
+        
+        // Mapear diretamente os campos retornados pela API
+        // Manter os nomes originais para facilitar o uso no componente
         this.summary = {
-          salesTotal: response.data?.data?.totalReceitas || 0,
-          expensesTotal: response.data?.data?.totalDespesas || 0,
-          receivableTotal: response.data?.data?.saldoAtual || 0,
-          monthlyTotal: response.data?.data?.saldoMensal || 0
+          totalReceitas: response.data?.data?.totalReceitas || 0,
+          totalDespesas: response.data?.data?.totalDespesas || 0,
+          saldoAtual: response.data?.data?.saldoAtual || 0,
+          saldoFinal: response.data?.data?.saldoFinal || 0,
+          saldoAnterior: response.data?.data?.saldoAnterior || 0,
+          periodo: response.data?.data?.periodo || ''
         }
       } catch (error) {
         this.error = error.response?.data?.message || 'Erro ao buscar resumo'

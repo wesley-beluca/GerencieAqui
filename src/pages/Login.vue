@@ -69,7 +69,7 @@
       </div>
       
       <div class="login-footer">
-        <p>&copy; 2023 GerencieAqui. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Wesley Augusto Beluca. Todos os direitos reservados.</p>
       </div>
     </div>
   </div>

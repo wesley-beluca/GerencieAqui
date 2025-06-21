@@ -12,15 +12,31 @@
     <div v-if="showFilters" class="filter-content">
       <div class="filter-form">
         <div class="filter-row">
-          <!-- Período -->
+          <!-- Período - Data Inicial -->
           <div class="filter-field">
-            <label>Período</label>
+            <label>Data Inicial</label>
             <div class="p-inputgroup">
               <Calendar 
-                v-model="filters.dateRange" 
-                selectionMode="range" 
+                v-model="filters.dataInicio" 
                 dateFormat="dd/mm/yy"
-                placeholder="Selecione o período" 
+                placeholder="Data inicial" 
+                class="w-full"
+              />
+              <Button 
+                icon="pi pi-calendar" 
+                class="p-button-outlined p-2" 
+              />
+            </div>
+          </div>
+          
+          <!-- Período - Data Final -->
+          <div class="filter-field">
+            <label>Data Final</label>
+            <div class="p-inputgroup">
+              <Calendar 
+                v-model="filters.dataFim" 
+                dateFormat="dd/mm/yy"
+                placeholder="Data final" 
                 class="w-full"
               />
               <Button 
@@ -95,7 +111,8 @@ export default {
     
     // Estado dos filtros
     const filters = reactive({
-      dateRange: null,
+      dataInicio: null,
+      dataFim: null,
       type: null
     })
     
@@ -106,8 +123,9 @@ export default {
     
     // Limpar filtros
     const resetFilters = () => {
-      filters.dateRange = null
-      filters.type = null
+      filters.dataInicio = null;
+      filters.dataFim = null;
+      filters.type = null;
       emit('filter', { ...filters })
     }
     
@@ -165,6 +183,7 @@ export default {
 .filter-field {
   flex: 1;
   min-width: 200px;
+  margin-right: 10px;
 }
 
 .filter-field label {
