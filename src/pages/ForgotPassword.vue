@@ -1,68 +1,42 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <div class="login-header">
+  <div class="forgot-password-page">
+    <div class="forgot-password-container">
+      <div class="forgot-password-header">
         <h1>GerencieAqui</h1>
       </div>
       
-      <div class="login-form">
-        <h2>Login</h2>
-        <p>Entre com suas credenciais para acessar o sistema</p>
+      <div class="forgot-password-form">
+        <h2>Recuperar Senha</h2>
+        <p>Digite seu e-mail para receber instruções de recuperação</p>
         
-        <form @submit.prevent="handleLogin">
+        <form @submit.prevent="handleForgotPassword">
           <div class="form-group">
-            <label for="username">Nome de usuário</label>
+            <label for="email">E-mail</label>
             <div class="input-with-icon">
-              <span class="icon-container"><i class="pi pi-user"></i></span>
+              <span class="icon-container"><i class="pi pi-envelope"></i></span>
               <InputText 
-                id="username" 
-                v-model="form.username" 
-                type="text" 
-                placeholder="Seu nome de usuário"
+                id="email" 
+                v-model="form.email" 
+                type="email" 
+                placeholder="Seu e-mail"
                 class="w-full"
-                :class="{ 'p-invalid': errors.username }"
+                :class="{ 'p-invalid': errors.email }"
                 required
               />
             </div>
-            <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
-          </div>
-          
-          <div class="form-group">
-            <label for="password">Senha</label>
-            <div class="input-with-icon">
-              <span class="icon-container"><i class="pi pi-lock"></i></span>
-              <InputText 
-                id="password" 
-                v-model="form.password" 
-                type="password" 
-                placeholder="Sua senha"
-                class="w-full"
-                :class="{ 'p-invalid': errors.password }"
-                required
-              />
-            </div>
-            <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
-          </div>
-          
-          <div class="form-footer">
-            <div class="remember-me">
-              <input type="checkbox" id="remember" v-model="form.remember" />
-              <label for="remember">Lembrar-me</label>
-            </div>
-            
-            <router-link to="/forgot-password" class="forgot-password">Esqueceu a senha?</router-link>
+            <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
           </div>
           
           <Button 
             type="submit" 
-            label="Entrar" 
-            icon="pi pi-sign-in" 
-            class="login-button w-full"
+            label="Enviar Instruções" 
+            icon="pi pi-send" 
+            class="forgot-password-button w-full"
             :loading="isLoading"
           />
           
-          <div class="register-link">
-            Não tem uma conta? <router-link to="/register">Registre-se</router-link>
+          <div class="login-link">
+            <router-link to="/login">Voltar para o login</router-link>
           </div>
         </form>
         
@@ -70,9 +44,14 @@
           <i class="pi pi-exclamation-triangle"></i>
           <span>{{ authError }}</span>
         </div>
+        
+        <div v-if="successMessage" class="success-message">
+          <i class="pi pi-check-circle"></i>
+          <span>{{ successMessage }}</span>
+        </div>
       </div>
       
-      <div class="login-footer">
+      <div class="forgot-password-footer">
         <p>&copy; 2025 Wesley Augusto Beluca. Todos os direitos reservados.</p>
       </div>
     </div>
@@ -81,40 +60,31 @@
 
 <script>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store'
 
 export default {
-  name: 'Login',
+  name: 'ForgotPassword',
   
   setup() {
-    const router = useRouter()
     const authStore = useAuthStore()
     
     const form = ref({
-      username: '',
-      password: '',
-      remember: false
+      email: ''
     })
     
     const errors = ref({})
     const isLoading = ref(false)
+    const successMessage = ref('')
     
     const authError = computed(() => authStore.error)
     
     const validate = () => {
       const newErrors = {}
       
-      if (!form.value.username) {
-        newErrors.username = 'O nome de usuário é obrigatório'
-      } else if (form.value.username.length < 3) {
-        newErrors.username = 'O nome de usuário deve ter pelo menos 3 caracteres'
-      }
-      
-      if (!form.value.password) {
-        newErrors.password = 'A senha é obrigatória'
-      } else if (form.value.password.length < 6) {
-        newErrors.password = 'A senha deve ter pelo menos 6 caracteres'
+      if (!form.value.email) {
+        newErrors.email = 'O e-mail é obrigatório'
+      } else if (!/^\S+@\S+\.\S+$/.test(form.value.email)) {
+        newErrors.email = 'Digite um e-mail válido'
       }
       
       errors.value = newErrors
@@ -122,21 +92,20 @@ export default {
       return Object.keys(newErrors).length === 0
     }
     
-    const handleLogin = async () => {
+    const handleForgotPassword = async () => {
       if (!validate()) {
         return
       }
       
       isLoading.value = true
+      successMessage.value = ''
       
       try {
-        const success = await authStore.login({
-          username: form.value.username,
-          password: form.value.password
-        })
+        const result = await authStore.forgotPassword(form.value.email)
         
-        if (success) {
-          router.push('/')
+        if (result) {
+          successMessage.value = 'Instruções para redefinição de senha foram enviadas para seu email'
+          form.value.email = ''
         }
       } finally {
         isLoading.value = false
@@ -148,14 +117,15 @@ export default {
       errors,
       isLoading,
       authError,
-      handleLogin
+      successMessage,
+      handleForgotPassword
     }
   }
 }
 </script>
 
 <style scoped>
-.login-page {
+.forgot-password-page {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -163,7 +133,7 @@ export default {
   background-color: var(--light-color);
 }
 
-.login-container {
+.forgot-password-container {
   width: 100%;
   max-width: 400px;
   background-color: var(--card-bg);
@@ -172,33 +142,28 @@ export default {
   padding: 2rem;
 }
 
-.login-header {
+.forgot-password-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 2rem;
 }
 
-.login-logo {
-  height: 60px;
-  margin-bottom: 1rem;
-}
-
-.login-header h1 {
+.forgot-password-header h1 {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--primary-color);
   margin: 0;
 }
 
-.login-form h2 {
+.forgot-password-form h2 {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--header-color);
 }
 
-.login-form p {
+.forgot-password-form p {
   color: var(--gray-color);
   margin-bottom: 2rem;
 }
@@ -253,25 +218,7 @@ export default {
   box-shadow: none;
 }
 
-.form-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.remember-me {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.forgot-password {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.login-button {
+.forgot-password-button {
   margin-bottom: 1.5rem;
 }
 
@@ -286,27 +233,38 @@ export default {
   margin-top: 1rem;
 }
 
-.register-link {
+.success-message {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--success-color);
+  padding: 0.75rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.login-link {
   text-align: center;
   margin-top: 1rem;
   color: var(--text-color);
   font-size: 0.9rem;
 }
 
-.register-link a {
+.login-link a {
   color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
 }
 
-.register-link a:hover {
+.login-link a:hover {
   text-decoration: underline;
 }
 
-.login-footer {
+.forgot-password-footer {
   text-align: center;
   margin-top: 2rem;
   color: var(--gray-color);
   font-size: 0.9rem;
 }
-</style> 
+</style>

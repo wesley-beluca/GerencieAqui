@@ -1,15 +1,15 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <div class="login-header">
+  <div class="register-page">
+    <div class="register-container">
+      <div class="register-header">
         <h1>GerencieAqui</h1>
       </div>
       
-      <div class="login-form">
-        <h2>Login</h2>
-        <p>Entre com suas credenciais para acessar o sistema</p>
+      <div class="register-form">
+        <h2>Criar Conta</h2>
+        <p>Preencha os dados abaixo para criar sua conta</p>
         
-        <form @submit.prevent="handleLogin">
+        <form @submit.prevent="handleRegister">
           <div class="form-group">
             <label for="username">Nome de usuário</label>
             <div class="input-with-icon">
@@ -25,6 +25,23 @@
               />
             </div>
             <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <div class="input-with-icon">
+              <span class="icon-container"><i class="pi pi-envelope"></i></span>
+              <InputText 
+                id="email" 
+                v-model="form.email" 
+                type="email" 
+                placeholder="Seu e-mail"
+                class="w-full"
+                :class="{ 'p-invalid': errors.email }"
+                required
+              />
+            </div>
+            <small v-if="errors.email" class="p-error">{{ errors.email }}</small>
           </div>
           
           <div class="form-group">
@@ -44,25 +61,33 @@
             <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
           </div>
           
-          <div class="form-footer">
-            <div class="remember-me">
-              <input type="checkbox" id="remember" v-model="form.remember" />
-              <label for="remember">Lembrar-me</label>
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar Senha</label>
+            <div class="input-with-icon">
+              <span class="icon-container"><i class="pi pi-lock"></i></span>
+              <InputText 
+                id="confirmPassword" 
+                v-model="form.confirmPassword" 
+                type="password" 
+                placeholder="Confirme sua senha"
+                class="w-full"
+                :class="{ 'p-invalid': errors.confirmPassword }"
+                required
+              />
             </div>
-            
-            <router-link to="/forgot-password" class="forgot-password">Esqueceu a senha?</router-link>
+            <small v-if="errors.confirmPassword" class="p-error">{{ errors.confirmPassword }}</small>
           </div>
           
           <Button 
             type="submit" 
-            label="Entrar" 
-            icon="pi pi-sign-in" 
-            class="login-button w-full"
+            label="Registrar" 
+            icon="pi pi-user-plus" 
+            class="register-button w-full"
             :loading="isLoading"
           />
           
-          <div class="register-link">
-            Não tem uma conta? <router-link to="/register">Registre-se</router-link>
+          <div class="login-link">
+            Já tem uma conta? <router-link to="/login">Faça login</router-link>
           </div>
         </form>
         
@@ -72,7 +97,7 @@
         </div>
       </div>
       
-      <div class="login-footer">
+      <div class="register-footer">
         <p>&copy; 2025 Wesley Augusto Beluca. Todos os direitos reservados.</p>
       </div>
     </div>
@@ -85,7 +110,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store'
 
 export default {
-  name: 'Login',
+  name: 'Register',
   
   setup() {
     const router = useRouter()
@@ -93,8 +118,9 @@ export default {
     
     const form = ref({
       username: '',
+      email: '',
       password: '',
-      remember: false
+      confirmPassword: ''
     })
     
     const errors = ref({})
@@ -109,6 +135,16 @@ export default {
         newErrors.username = 'O nome de usuário é obrigatório'
       } else if (form.value.username.length < 3) {
         newErrors.username = 'O nome de usuário deve ter pelo menos 3 caracteres'
+      } else if (form.value.username.length > 50) {
+        newErrors.username = 'O nome de usuário deve ter no máximo 50 caracteres'
+      }
+      
+      if (!form.value.email) {
+        newErrors.email = 'O e-mail é obrigatório'
+      } else if (!/^\S+@\S+\.\S+$/.test(form.value.email)) {
+        newErrors.email = 'Digite um e-mail válido'
+      } else if (form.value.email.length > 100) {
+        newErrors.email = 'O e-mail deve ter no máximo 100 caracteres'
       }
       
       if (!form.value.password) {
@@ -117,12 +153,18 @@ export default {
         newErrors.password = 'A senha deve ter pelo menos 6 caracteres'
       }
       
+      if (!form.value.confirmPassword) {
+        newErrors.confirmPassword = 'Confirme sua senha'
+      } else if (form.value.password !== form.value.confirmPassword) {
+        newErrors.confirmPassword = 'As senhas não conferem'
+      }
+      
       errors.value = newErrors
       
       return Object.keys(newErrors).length === 0
     }
     
-    const handleLogin = async () => {
+    const handleRegister = async () => {
       if (!validate()) {
         return
       }
@@ -130,13 +172,16 @@ export default {
       isLoading.value = true
       
       try {
-        const success = await authStore.login({
+        const result = await authStore.register({
           username: form.value.username,
-          password: form.value.password
+          email: form.value.email,
+          password: form.value.password,
+          confirmPassword: form.value.confirmPassword
         })
         
-        if (success) {
-          router.push('/')
+        if (result) {
+          // Mostrar mensagem de sucesso
+          router.push('/login')
         }
       } finally {
         isLoading.value = false
@@ -148,76 +193,13 @@ export default {
       errors,
       isLoading,
       authError,
-      handleLogin
+      handleRegister
     }
   }
 }
 </script>
 
 <style scoped>
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: var(--light-color);
-}
-
-.login-container {
-  width: 100%;
-  max-width: 400px;
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-}
-
-.login-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.login-logo {
-  height: 60px;
-  margin-bottom: 1rem;
-}
-
-.login-header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  margin: 0;
-}
-
-.login-form h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--header-color);
-}
-
-.login-form p {
-  color: var(--gray-color);
-  margin-bottom: 2rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.form-group .p-inputtext {
-  color: var(--text-color);
-}
-
 .input-with-icon {
   display: flex;
   align-items: center;
@@ -253,25 +235,65 @@ export default {
   box-shadow: none;
 }
 
-.form-footer {
+.register-page {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  background-color: var(--light-color);
+}
+
+.register-container {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.register-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.register-form h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--header-color);
+}
+
+.register-form p {
+  color: var(--gray-color);
+  margin-bottom: 2rem;
+}
+
+.form-group {
   margin-bottom: 1.5rem;
 }
 
-.remember-me {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
 }
 
-.forgot-password {
-  color: var(--primary-color);
-  text-decoration: none;
+.form-group .p-inputtext {
+  color: var(--text-color);
 }
 
-.login-button {
+.register-button {
   margin-bottom: 1.5rem;
 }
 
@@ -286,27 +308,27 @@ export default {
   margin-top: 1rem;
 }
 
-.register-link {
+.login-link {
   text-align: center;
   margin-top: 1rem;
   color: var(--text-color);
   font-size: 0.9rem;
 }
 
-.register-link a {
+.login-link a {
   color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
 }
 
-.register-link a:hover {
+.login-link a:hover {
   text-decoration: underline;
 }
 
-.login-footer {
+.register-footer {
   text-align: center;
   margin-top: 2rem;
   color: var(--gray-color);
   font-size: 0.9rem;
 }
-</style> 
+</style>

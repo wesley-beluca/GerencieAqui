@@ -13,6 +13,13 @@
             <i class="pi pi-user"></i>
             {{ userName }}
           </span>
+          <Button 
+            icon="pi pi-sign-out" 
+            class="p-button-text p-button-rounded logout-button" 
+            @click="logout" 
+            tooltip="Sair"
+            tooltipOptions="{position: 'bottom'}"
+          />
         </div>
       </header>
       
@@ -105,6 +112,16 @@ export default {
 .user-info i {
   margin-right: 8px;
   font-size: 1.2rem;
+}
+
+.logout-button {
+  margin-left: 1rem;
+  color: var(--text-color);
+}
+
+.logout-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--primary-color);
 }
 
 .page-content {

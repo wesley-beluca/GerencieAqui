@@ -30,14 +30,6 @@ import Tag from 'primevue/tag'
 import CustomDialog from './components/molecules/CustomDialog.vue'
 import ConfirmationDialog from './components/molecules/ConfirmationDialog.vue'
 
-// Configurar localStorage para simular autenticação
-localStorage.setItem('token', 'fake-token-for-development')
-localStorage.setItem('user', JSON.stringify({
-  id: 1,
-  name: 'Usuário Teste',
-  email: 'usuario@teste.com'
-}))
-
 // Criar a aplicação Vue
 const app = createApp(App)
 
@@ -54,8 +46,7 @@ import { useAuthStore } from './store'
 
 // Inicializar o estado da autenticação
 const authStore = useAuthStore(pinia)
-authStore.user = JSON.parse(localStorage.getItem('user'))
-authStore.token = localStorage.getItem('token')
+authStore.initAuth()
 
 // Registrar componentes globalmente
 app.component('Button', Button)
