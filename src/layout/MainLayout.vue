@@ -52,7 +52,8 @@ export default {
     })
     
     const userName = computed(() => {
-      return authStore.user?.name || 'Usuário'
+      // Tenta acessar o nome do usuário em diferentes propriedades possíveis
+      return authStore.user?.nome || authStore.user?.username || authStore.user?.name || 'Usuário'
     })
     
     const logout = async () => {
@@ -94,6 +95,11 @@ export default {
   padding: 0 1.5rem;
   background-color: var(--card-bg);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.header-actions{
+  display: flex;
+  
 }
 
 .header-title h2 {
