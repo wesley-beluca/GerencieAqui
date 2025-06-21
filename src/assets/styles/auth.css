@@ -1,0 +1,178 @@
+/* Estilos compartilhados para páginas de autenticação */
+
+/* Layout de página */
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--light-color);
+}
+
+/* Container principal */
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+/* Cabeçalho */
+.auth-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  height: 60px;
+  margin-bottom: 1rem;
+}
+
+.auth-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+/* Formulário */
+.auth-form h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--header-color);
+}
+
+.auth-form p {
+  color: var(--gray-color);
+  margin-bottom: 2rem;
+}
+
+/* Grupos de formulário */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-group .p-inputtext {
+  color: var(--text-color);
+}
+
+/* Inputs com ícones */
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid var(--surface-border);
+  border-radius: 4px;
+  background-color: var(--surface-card);
+  overflow: hidden;
+}
+
+.input-with-icon:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+.input-with-icon .p-inputtext {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0.75rem;
+}
+
+.input-with-icon .p-inputtext:focus {
+  box-shadow: none;
+}
+
+/* Rodapé do formulário */
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.forgot-password {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+/* Botões */
+.auth-button {
+  margin-bottom: 1.5rem;
+}
+
+/* Mensagens */
+.auth-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--danger-color);
+  padding: 0.75rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.success-message {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--success-color);
+  padding: 0.75rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Links */
+.auth-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.auth-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+/* Rodapé */
+.auth-footer {
+  text-align: center;
+  margin-top: 2rem;
+  color: var(--gray-color);
+  font-size: 0.9rem;
+}

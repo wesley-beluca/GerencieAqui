@@ -1,11 +1,11 @@
 <template>
-  <div class="forgot-password-page">
-    <div class="forgot-password-container">
-      <div class="forgot-password-header">
+  <div class="auth-page">
+    <div class="auth-container">
+      <div class="auth-header">
         <h1>GerencieAqui</h1>
       </div>
       
-      <div class="forgot-password-form">
+      <div class="auth-form">
         <h2>Recuperar Senha</h2>
         <p>Digite seu e-mail para receber instruções de recuperação</p>
         
@@ -19,7 +19,6 @@
                 v-model="form.email" 
                 type="email" 
                 placeholder="Seu e-mail"
-                class="w-full"
                 :class="{ 'p-invalid': errors.email }"
                 required
               />
@@ -31,11 +30,11 @@
             type="submit" 
             label="Enviar Instruções" 
             icon="pi pi-send" 
-            class="forgot-password-button w-full"
+            class="p-button-primary w-full auth-button"
             :loading="isLoading"
           />
           
-          <div class="login-link">
+          <div class="auth-link">
             <router-link to="/login">Voltar para o login</router-link>
           </div>
         </form>
@@ -51,8 +50,8 @@
         </div>
       </div>
       
-      <div class="forgot-password-footer">
-        <p>&copy; 2025 Wesley Augusto Beluca. Todos os direitos reservados.</p>
+      <div class="auth-footer">
+        <p>&copy; {{ new Date().getFullYear() }} Wesley Augusto Beluca. Todos os direitos reservados.</p>
       </div>
     </div>
   </div>
@@ -124,147 +123,6 @@ export default {
 }
 </script>
 
-<style scoped>
-.forgot-password-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: var(--light-color);
-}
-
-.forgot-password-container {
-  width: 100%;
-  max-width: 400px;
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-}
-
-.forgot-password-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.forgot-password-header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  margin: 0;
-}
-
-.forgot-password-form h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--header-color);
-}
-
-.forgot-password-form p {
-  color: var(--gray-color);
-  margin-bottom: 2rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.form-group .p-inputtext {
-  color: var(--text-color);
-}
-
-.input-with-icon {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  border: 1px solid var(--surface-border);
-  border-radius: 4px;
-  background-color: var(--surface-card);
-  overflow: hidden;
-}
-
-.input-with-icon:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 1px var(--primary-color);
-}
-
-.icon-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-left: 0.75rem;
-  color: var(--text-color-secondary);
-}
-
-.input-with-icon .p-inputtext {
-  flex: 1;
-  border: none;
-  background-color: transparent;
-  box-shadow: none;
-  padding: 0.75rem;
-}
-
-.input-with-icon .p-inputtext:focus {
-  box-shadow: none;
-}
-
-.forgot-password-button {
-  margin-bottom: 1.5rem;
-}
-
-.auth-error {
-  background-color: rgba(244, 67, 54, 0.1);
-  color: var(--danger-color);
-  padding: 0.75rem;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.success-message {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: var(--success-color);
-  padding: 0.75rem;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.login-link {
-  text-align: center;
-  margin-top: 1rem;
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
-.login-link a {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.login-link a:hover {
-  text-decoration: underline;
-}
-
-.forgot-password-footer {
-  text-align: center;
-  margin-top: 2rem;
-  color: var(--gray-color);
-  font-size: 0.9rem;
-}
+<style>
+@import '../assets/styles/auth.css';
 </style>

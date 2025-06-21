@@ -106,8 +106,6 @@ export default {
       updateChartData()
     })
     
-    // Função para atualizar apenas os gráficos com base nas transações filtradas
-    // Não modifica os valores dos cards que vem do backend
     const updateChartDataOnly = () => {
       const transactions = transactionStore.transactions
       if (!transactions || transactions.length === 0) {
@@ -143,11 +141,8 @@ export default {
     // Função para buscar dados do dashboard
     const fetchDashboardData = async (dataInicio = null, dataFim = null) => {
       try {
-        // Buscar resumo financeiro do backend com os filtros de data
         await transactionStore.fetchDashboardSummary(dataInicio, dataFim)
         
-        // Atualizar cards com os dados do resumo financeiro do backend
-        // Usar exatamente os campos retornados pela API
         summaryData.salesTotal = transactionStore.summary.totalReceitas
         summaryData.expensesTotal = transactionStore.summary.totalDespesas
         
@@ -169,17 +164,17 @@ export default {
     const pieChartOptions = {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '0%', // Sem recorte para gráfico de pizza cheio
-      radius: '90%', // Aumenta o raio do gráfico para ocupar mais espaço
+      cutout: '0%',
+      radius: '90%',
       plugins: {
         legend: {
           position: 'top',
           labels: {
             color: 'var(--text-color)',
             font: {
-              size: 14 // Aumenta o tamanho da fonte da legenda
+              size: 14 
             },
-            padding: 20 // Aumenta o espaçamento da legenda
+            padding: 20
           }
         },
         tooltip: {
@@ -193,7 +188,7 @@ export default {
             }
           },
           bodyFont: {
-            size: 14 // Aumenta o tamanho da fonte do tooltip
+            size: 14
           }
         }
       }
@@ -244,7 +239,7 @@ export default {
     
     // Função para lidar com a exportação de gráficos
     const handleChartExport = (format) => {
-      // Implementação futura para exportação de gráficos
+
     }
     
     return {
@@ -269,7 +264,6 @@ export default {
   flex-direction: column;
 }
 
-/* Aumenta o tamanho do gráfico de pizza */
 :deep(.p-chart) {
   height: 400px !important;
   width: 100% !important;
