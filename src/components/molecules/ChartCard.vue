@@ -88,6 +88,6 @@ export default {
 
 .chart-card-body {
   position: relative;
-  min-height: 300px;
+  min-height: 400px;
 }
 </style> 

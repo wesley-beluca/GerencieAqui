@@ -37,9 +37,9 @@
         <div class="chart-row">
           <ChartCard 
             title="Receita x Despesa" 
-            type="line" 
-            :chartData="revenueExpenseData"
-            :chartOptions="lineChartOptions"
+            type="pie" 
+            :chartData="pieChartData"
+            :chartOptions="pieChartOptions"
             class="chart-col-full"
             @export="handleChartExport"
           />
@@ -80,43 +80,19 @@ export default {
       balance: 0
     })
     
-    // Dados para o gráfico de barras
-    const barChartData = reactive({
-      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    // Dados para o gráfico de pizza
+    const pieChartData = reactive({
+      labels: ['Receitas', 'Despesas'],
       datasets: [
         {
-          label: 'Receitas',
-          backgroundColor: '#4CAF50',
-          data: [0, 0, 0, 0, 0, 0]
-        },
-        {
-          label: 'Despesas',
-          backgroundColor: '#F44336',
-          data: [0, 0, 0, 0, 0, 0]
+          backgroundColor: ['#4CAF50', '#F44336'],
+          hoverBackgroundColor: ['#66BB6A', '#EF5350'],
+          borderColor: '#ffffff',
+          borderWidth: 2,
+          data: [0, 0]
         }
       ]
     })
-    
-    // Dados para o gráfico de linha
-    const lineChartData = reactive({
-      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-      datasets: [
-        {
-          label: 'Saldo',
-          borderColor: '#2196f3',
-          backgroundColor: 'rgba(33, 150, 243, 0.1)',
-          tension: 0.4,
-          fill: true,
-          data: [0, 0, 0, 0, 0, 0]
-        }
-      ]
-    })
-    
-    // Opções para os gráficos
-    const chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false
-    }
     
     // Carregar dados do dashboard
     onMounted(async () => {
@@ -135,61 +111,28 @@ export default {
     const updateChartDataOnly = () => {
       const transactions = transactionStore.transactions
       if (!transactions || transactions.length === 0) {
-        // Se não houver transações, zerar os dados dos gráficos
-        barChartData.datasets[0].data = Array(6).fill(0)
-        barChartData.datasets[1].data = Array(6).fill(0)
-        lineChartData.datasets[0].data = Array(6).fill(0)
+        // Se não houver transações, zerar os dados do gráfico
+        pieChartData.datasets[0].data = [0, 0]
         return
       }
       
-      // Dados para gráfico de barras - últimos 6 meses
-      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-      const currentDate = new Date()
-      const currentMonth = currentDate.getMonth()
-      
-      // Obter os últimos 6 meses
-      const last6Months = []
-      for (let i = 5; i >= 0; i--) {
-        const monthIndex = (currentMonth - i + 12) % 12
-        last6Months.push(months[monthIndex])
-      }
-      
-      // Atualizar labels
-      barChartData.labels = last6Months
-      lineChartData.labels = last6Months
-      
-      // Calcular receitas e despesas por mês
-      const incomeByMonth = Array(6).fill(0)
-      const expenseByMonth = Array(6).fill(0)
-      const balanceByMonth = Array(6).fill(0)
+      // Variáveis para calcular os totais para o gráfico de pizza
+      let totalReceitas = 0
+      let totalDespesas = 0
       
       transactions.forEach(transaction => {
-        const transDate = new Date(transaction.date || transaction.data)
-        const transMonth = transDate.getMonth()
-        const monthDiff = (currentMonth - transMonth + 12) % 12
+        const value = Number(transaction.value || transaction.valor || 0)
         
-        // Calcular valores para os gráficos
-        if (monthDiff < 6) {
-          const monthIndex = 5 - monthDiff
-          const value = Number(transaction.value || transaction.valor || 0)
-          
-          if (transaction.type === 'RECEITA' || transaction.tipo === 1) {
-            incomeByMonth[monthIndex] += value
-          } else {
-            expenseByMonth[monthIndex] += value
-          }
+        // Calcular totais para o gráfico de pizza
+        if (transaction.type === 'RECEITA' || transaction.tipo === 1) {
+          totalReceitas += value
+        } else {
+          totalDespesas += value
         }
       })
       
-      // Calcular saldo por mês
-      for (let i = 0; i < 6; i++) {
-        balanceByMonth[i] = incomeByMonth[i] - expenseByMonth[i]
-      }
-      
-      // Atualizar dados dos gráficos
-      barChartData.datasets[0].data = incomeByMonth
-      barChartData.datasets[1].data = expenseByMonth
-      lineChartData.datasets[0].data = balanceByMonth
+      // Atualizar dados do gráfico de pizza
+      pieChartData.datasets[0].data = [totalReceitas, totalDespesas]
     }
     
     const applyFilters = (filters) => {
@@ -222,18 +165,36 @@ export default {
       }
     }
     
-    // Opções para gráficos de linha
-    const lineChartOptions = {
+    // Opções para gráficos de pizza
+    const pieChartOptions = {
       responsive: true,
       maintainAspectRatio: false,
+      cutout: '0%', // Sem recorte para gráfico de pizza cheio
+      radius: '90%', // Aumenta o raio do gráfico para ocupar mais espaço
       plugins: {
         legend: {
-          position: 'top'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
+          position: 'top',
+          labels: {
+            color: 'var(--text-color)',
+            font: {
+              size: 14 // Aumenta o tamanho da fonte da legenda
+            },
+            padding: 20 // Aumenta o espaçamento da legenda
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+              return `${label}: R$ ${value.toFixed(2)} (${percentage}%)`;
+            }
+          },
+          bodyFont: {
+            size: 14 // Aumenta o tamanho da fonte do tooltip
+          }
         }
       }
     }
@@ -247,42 +208,16 @@ export default {
         summaryData.expensesTotal = 0
         summaryData.balance = 0
         
-        // Zerar dados dos gráficos
-        barChartData.datasets[0].data = Array(6).fill(0)
-        barChartData.datasets[1].data = Array(6).fill(0)
-        lineChartData.datasets[0].data = Array(6).fill(0)
+        // Zerar dados do gráfico
+        pieChartData.datasets[0].data = [0, 0]
         return
       }
       
-      // Dados para gráfico de barras - últimos 6 meses
-      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-      const currentDate = new Date()
-      const currentMonth = currentDate.getMonth()
-      
-      // Obter os últimos 6 meses
-      const last6Months = []
-      for (let i = 5; i >= 0; i--) {
-        const monthIndex = (currentMonth - i + 12) % 12
-        last6Months.push(months[monthIndex])
-      }
-      
-      // Atualizar labels
-      barChartData.labels = last6Months
-      lineChartData.labels = last6Months
-      
-      // Calcular receitas e despesas por mês
-      const incomeByMonth = Array(6).fill(0)
-      const expenseByMonth = Array(6).fill(0)
-      const balanceByMonth = Array(6).fill(0)
-      
-      // Variáveis para calcular os totais para os cards
+      // Variáveis para calcular os totais para o gráfico de pizza e cards
       let totalReceitas = 0
       let totalDespesas = 0
       
       transactions.forEach(transaction => {
-        const transDate = new Date(transaction.date || transaction.data)
-        const transMonth = transDate.getMonth()
-        const monthDiff = (currentMonth - transMonth + 12) % 12
         const value = Number(transaction.value || transaction.valor || 0)
         
         // Calcular totais para os cards
@@ -291,17 +226,6 @@ export default {
         } else {
           totalDespesas += value
         }
-        
-        // Calcular valores para os gráficos
-        if (monthDiff < 6) {
-          const monthIndex = 5 - monthDiff
-          
-          if (transaction.type === 'RECEITA' || transaction.tipo === 1) {
-            incomeByMonth[monthIndex] += value
-          } else {
-            expenseByMonth[monthIndex] += value
-          }
-        }
       })
       
       // Atualizar os cards com os totais calculados
@@ -309,15 +233,8 @@ export default {
       summaryData.expensesTotal = totalDespesas
       summaryData.balance = totalReceitas - totalDespesas
       
-      // Calcular saldo por mês
-      for (let i = 0; i < 6; i++) {
-        balanceByMonth[i] = incomeByMonth[i] - expenseByMonth[i]
-      }
-      
-      // Atualizar dados dos gráficos
-      barChartData.datasets[0].data = incomeByMonth
-      barChartData.datasets[1].data = expenseByMonth
-      lineChartData.datasets[0].data = balanceByMonth
+      // Atualizar dados do gráfico de pizza
+      pieChartData.datasets[0].data = [totalReceitas, totalDespesas]
     }
     
     // Inicializar dados ao montar o componente
@@ -332,11 +249,30 @@ export default {
     
     return {
       summary: summaryData,
-      revenueExpenseData: barChartData,
-      lineChartOptions,
+      pieChartData,
+      pieChartOptions,
       applyFilters,
       handleChartExport
     }
   }
 }
 </script>
+
+<style scoped>
+/* Estilos específicos do dashboard */
+.chart-row {
+  min-height: 450px;
+}
+
+.chart-col-full {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Aumenta o tamanho do gráfico de pizza */
+:deep(.p-chart) {
+  height: 400px !important;
+  width: 100% !important;
+  margin: 0 auto;
+}
+</style>
