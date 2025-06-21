@@ -1,92 +1,83 @@
 <template>
-  <div class="auth-page">
-    <div class="auth-container">
-      <div class="auth-header">
-        <h1>GerencieAqui</h1>
-      </div>
-      
-      <div class="auth-form">
-        <h2>Redefinir Senha</h2>
-        <p>Digite sua nova senha</p>
-        
-        <form @submit.prevent="handleResetPassword">
-          <div class="form-group">
-            <label for="password">Nova Senha</label>
-            <div class="input-with-icon">
-              <span class="icon-container"><i class="pi pi-lock"></i></span>
-              <InputText 
-                id="password" 
-                v-model="form.password" 
-                type="password" 
-                placeholder="Nova senha"
-                class="w-full"
-                :class="{ 'p-invalid': errors.password }"
-                required
-              />
-            </div>
-            <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
-          </div>
-          
-          <div class="form-group">
-            <label for="confirmPassword">Confirmar Senha</label>
-            <div class="input-with-icon">
-              <span class="icon-container"><i class="pi pi-lock"></i></span>
-              <InputText 
-                id="confirmPassword" 
-                v-model="form.confirmPassword" 
-                type="password" 
-                placeholder="Confirme sua nova senha"
-                class="w-full"
-                :class="{ 'p-invalid': errors.confirmPassword }"
-                required
-              />
-            </div>
-            <small v-if="errors.confirmPassword" class="p-error">{{ errors.confirmPassword }}</small>
-          </div>
-          
-          <Button 
-            type="submit" 
-            label="Redefinir Senha" 
-            icon="pi pi-check" 
-            class="auth-button w-full"
-            :loading="isLoading"
+  <AuthLayout 
+    title="Redefinir Senha" 
+    subtitle="Digite sua nova senha"
+    :authError="authError"
+    :successMessage="successMessage"
+  >
+    <form @submit.prevent="handleResetPassword">
+      <div class="form-group">
+        <label for="password">Nova Senha</label>
+        <div class="input-with-icon">
+          <span class="icon-container"><i class="pi pi-lock"></i></span>
+          <InputText 
+            id="password" 
+            v-model="form.password" 
+            type="password" 
+            placeholder="Nova senha"
+            class="w-full"
+            :class="{ 'p-invalid': passwordErrors.password }"
+            required
           />
-          
-          <div class="auth-link">
-            <router-link to="/login">Voltar para o login</router-link>
-          </div>
-        </form>
-        
-        <div v-if="authError" class="auth-error">
-          <i class="pi pi-exclamation-triangle"></i>
-          <span>{{ authError }}</span>
         </div>
-        
-        <div v-if="successMessage" class="success-message">
-          <i class="pi pi-check-circle"></i>
-          <span>{{ successMessage }}</span>
-        </div>
+        <small v-if="passwordErrors.password" class="p-error">{{ passwordErrors.password }}</small>
       </div>
       
-      <div class="auth-footer">
-        <p>&copy; 2025 Wesley Augusto Beluca. Todos os direitos reservados.</p>
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Senha</label>
+        <div class="input-with-icon">
+          <span class="icon-container"><i class="pi pi-lock"></i></span>
+          <InputText 
+            id="confirmPassword" 
+            v-model="form.confirmPassword" 
+            type="password" 
+            placeholder="Confirme sua nova senha"
+            class="w-full"
+            :class="{ 'p-invalid': passwordErrors.confirmPassword }"
+            required
+          />
+        </div>
+        <small v-if="passwordErrors.confirmPassword" class="p-error">{{ passwordErrors.confirmPassword }}</small>
       </div>
-    </div>
-  </div>
+      
+      <Button 
+        type="submit" 
+        label="Redefinir Senha" 
+        icon="pi pi-check" 
+        class="auth-button w-full"
+        :loading="isLoading"
+      />
+      
+      <div class="auth-link">
+        <router-link to="/login">Voltar para o login</router-link>
+      </div>
+    </form>
+  </AuthLayout>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../store'
+import { usePasswordValidation } from '../composables/usePasswordValidation'
+import { useAuthForm } from '../composables/useAuthForm'
+import AuthLayout from '../components/layout/AuthLayout.vue'
 
 export default {
   name: 'ResetPassword',
+  
+  components: {
+    AuthLayout
+  },
   
   setup() {
     const route = useRoute()
     const router = useRouter()
     const authStore = useAuthStore()
+    
+    // Usar composables
+    const { passwordErrors, validatePassword } = usePasswordValidation()
+    const { isLoading, successMessage, authError, clearMessages, setSuccessMessage } = useAuthForm()
     
     const form = ref({
       token: '',
@@ -94,47 +85,27 @@ export default {
       confirmPassword: ''
     })
     
-    const errors = ref({})
-    const isLoading = ref(false)
-    const successMessage = ref('')
     const tokenValid = ref(true)
-    
-    const authError = computed(() => authStore.error)
     
     onMounted(() => {
       // Obter o token da URL
       const token = route.query.token
       if (!token) {
         tokenValid.value = false
-        errors.value.token = 'Token inválido ou ausente'
+        passwordErrors.value.token = 'Token inválido ou ausente'
       } else {
         form.value.token = token
       }
     })
     
     const validate = () => {
-      const newErrors = {}
-      
       if (!form.value.token) {
-        newErrors.token = 'Token inválido ou ausente'
+        passwordErrors.value.token = 'Token inválido ou ausente'
         return false
       }
       
-      if (!form.value.password) {
-        newErrors.password = 'A senha é obrigatória'
-      } else if (form.value.password.length < 6) {
-        newErrors.password = 'A senha deve ter pelo menos 6 caracteres'
-      }
-      
-      if (!form.value.confirmPassword) {
-        newErrors.confirmPassword = 'Confirme sua senha'
-      } else if (form.value.password !== form.value.confirmPassword) {
-        newErrors.confirmPassword = 'As senhas não conferem'
-      }
-      
-      errors.value = newErrors
-      
-      return Object.keys(newErrors).length === 0
+      // Usar o composable de validação de senha
+      return validatePassword(form.value.password, form.value.confirmPassword)
     }
     
     const handleResetPassword = async () => {
@@ -143,7 +114,7 @@ export default {
       }
       
       isLoading.value = true
-      successMessage.value = ''
+      clearMessages()
       
       try {
         const result = await authStore.resetPassword({
@@ -153,7 +124,7 @@ export default {
         })
         
         if (result) {
-          successMessage.value = 'Senha redefinida com sucesso'
+          setSuccessMessage('Senha redefinida com sucesso')
           // Redirecionar para login após 2 segundos
           setTimeout(() => {
             router.push('/login')
@@ -166,7 +137,7 @@ export default {
     
     return {
       form,
-      errors,
+      passwordErrors,
       isLoading,
       authError,
       successMessage,
@@ -176,7 +147,3 @@ export default {
   }
 }
 </script>
-
-<style>
-@import '../assets/styles/auth.css';
-</style>

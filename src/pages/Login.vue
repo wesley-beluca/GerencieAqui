@@ -1,95 +1,92 @@
 <template>
-  <div class="auth-page">
-    <div class="auth-container">
-      <div class="auth-header">
-        <h1>GerencieAqui</h1>
-      </div>
-      
-      <div class="auth-form">
-        <h2>Login</h2>
-        <p>Entre com suas credenciais para acessar o sistema</p>
-        
-        <form @submit.prevent="handleLogin">
-          <div class="form-group">
-            <label for="username">Nome de usuário</label>
-            <div class="input-with-icon">
-              <span class="icon-container"><i class="pi pi-user"></i></span>
-              <InputText 
-                id="username" 
-                v-model="form.username" 
-                type="text" 
-                placeholder="Seu nome de usuário"
-                class="w-full"
-                :class="{ 'p-invalid': errors.username }"
-                required
-              />
-            </div>
-            <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
-          </div>
-          
-          <div class="form-group">
-            <label for="password">Senha</label>
-            <div class="input-with-icon">
-              <span class="icon-container"><i class="pi pi-lock"></i></span>
-              <InputText 
-                id="password" 
-                v-model="form.password" 
-                type="password" 
-                placeholder="Sua senha"
-                class="w-full"
-                :class="{ 'p-invalid': errors.password }"
-                required
-              />
-            </div>
-            <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
-          </div>
-          
-          <div class="form-footer">
-            <div class="remember-me">
-              <input type="checkbox" id="remember" v-model="form.remember" />
-              <label for="remember">Lembrar-me</label>
-            </div>
-            
-            <router-link to="/forgot-password" class="forgot-password">Esqueceu a senha?</router-link>
-          </div>
-          
-          <Button 
-            type="submit" 
-            label="Entrar" 
-            icon="pi pi-sign-in" 
-            class="auth-button w-full"
-            :loading="isLoading"
+  <AuthLayout 
+    title="Login" 
+    subtitle="Entre com suas credenciais para acessar o sistema"
+    :authError="authError"
+  >
+    <form @submit.prevent="handleLogin">
+      <div class="form-group">
+        <label for="username">Nome de usuário</label>
+        <div class="input-with-icon">
+          <span class="icon-container"><i class="pi pi-user"></i></span>
+          <InputText 
+            id="username" 
+            v-model="form.username" 
+            type="text" 
+            placeholder="Seu nome de usuário"
+            class="w-full"
+            :class="{ 'p-invalid': errors.username }"
+            required
           />
-          
-          <div class="auth-link">
-            Não tem uma conta? <router-link to="/register">Registre-se</router-link>
-          </div>
-        </form>
-        
-        <div v-if="authError" class="auth-error">
-          <i class="pi pi-exclamation-triangle"></i>
-          <span>{{ authError }}</span>
         </div>
+        <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
       </div>
       
-      <div class="auth-footer">
-        <p>&copy; 2025 Wesley Augusto Beluca. Todos os direitos reservados.</p>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="input-with-icon">
+          <span class="icon-container"><i class="pi pi-lock"></i></span>
+          <InputText 
+            id="password" 
+            v-model="form.password" 
+            type="password" 
+            placeholder="Sua senha"
+            class="w-full"
+            :class="{ 'p-invalid': passwordErrors.password }"
+            required
+          />
+        </div>
+        <small v-if="passwordErrors.password" class="p-error">{{ passwordErrors.password }}</small>
       </div>
-    </div>
-  </div>
+      
+      <div class="form-footer">
+        <div class="remember-me">
+          <input type="checkbox" id="remember" v-model="form.remember" />
+          <label for="remember">Lembrar-me</label>
+        </div>
+        
+        <router-link to="/forgot-password" class="forgot-password">Esqueceu a senha?</router-link>
+      </div>
+      
+      <Button 
+        type="submit" 
+        label="Entrar" 
+        icon="pi pi-sign-in" 
+        class="auth-button w-full"
+        :loading="isLoading"
+      />
+      
+      <div class="auth-link">
+        Não tem uma conta? <router-link to="/register">Registre-se</router-link>
+      </div>
+    </form>
+  </AuthLayout>
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../store'
+import { useFormValidation } from '../composables/useFormValidation'
+import { usePasswordValidation } from '../composables/usePasswordValidation'
+import { useAuthForm } from '../composables/useAuthForm'
+import AuthLayout from '../components/layout/AuthLayout.vue'
 
 export default {
   name: 'Login',
   
+  components: {
+    AuthLayout
+  },
+  
   setup() {
     const router = useRouter()
     const authStore = useAuthStore()
+    
+    // Usar composables
+    const { errors, validateUsername, clearErrors } = useFormValidation()
+    const { passwordErrors, validatePassword } = usePasswordValidation()
+    const { isLoading, authError } = useAuthForm()
     
     const form = ref({
       username: '',
@@ -97,29 +94,13 @@ export default {
       remember: false
     })
     
-    const errors = ref({})
-    const isLoading = ref(false)
-    
-    const authError = computed(() => authStore.error)
-    
     const validate = () => {
-      const newErrors = {}
+      clearErrors()
       
-      if (!form.value.username) {
-        newErrors.username = 'O nome de usuário é obrigatório'
-      } else if (form.value.username.length < 3) {
-        newErrors.username = 'O nome de usuário deve ter pelo menos 3 caracteres'
-      }
+      const isUsernameValid = validateUsername(form.value.username)
+      const isPasswordValid = validatePassword(form.value.password)
       
-      if (!form.value.password) {
-        newErrors.password = 'A senha é obrigatória'
-      } else if (form.value.password.length < 6) {
-        newErrors.password = 'A senha deve ter pelo menos 6 caracteres'
-      }
-      
-      errors.value = newErrors
-      
-      return Object.keys(newErrors).length === 0
+      return isUsernameValid && isPasswordValid
     }
     
     const handleLogin = async () => {
@@ -132,7 +113,8 @@ export default {
       try {
         const success = await authStore.login({
           username: form.value.username,
-          password: form.value.password
+          password: form.value.password,
+          remember: form.value.remember
         })
         
         if (success) {
@@ -146,6 +128,7 @@ export default {
     return {
       form,
       errors,
+      passwordErrors,
       isLoading,
       authError,
       handleLogin
@@ -153,7 +136,3 @@ export default {
   }
 }
 </script>
-
-<style>
-@import '../assets/styles/auth.css';
-</style> 
