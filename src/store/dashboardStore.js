@@ -42,37 +42,55 @@ export const useDashboardStore = defineStore('dashboard', {
       this.error = null
       
       try {
-        // Obter data atual e primeiro dia do mês para o período
         const dataFim = new Date().toISOString().split('T')[0]
         const dataInicio = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
         
-        // Buscar resumo financeiro
         const summaryResponse = await api.get(`/ResumoFinanceiro?dataInicio=${dataInicio}&dataFim=${dataFim}`)
         
         if (summaryResponse.data && summaryResponse.data.success) {
           this.summary = {
             totalReceitas: summaryResponse.data.data?.totalReceitas || 0,
             totalDespesas: summaryResponse.data.data?.totalDespesas || 0,
-            saldoAtual: summaryResponse.data.data?.saldoAtual || 0,
-            saldoMensal: summaryResponse.data.data?.saldoMensal || 0
+            saldoAtual: summaryResponse.data.data?.saldoFinal || 0,
+            saldoMensal: summaryResponse.data.data?.totalReceitas - summaryResponse.data.data?.totalDespesas || 0
           }
         }
         
-        // Buscar dados para gráficos
-        const chartResponse = await api.get(`/GraficosFinanceiros?dataInicio=${dataInicio}&dataFim=${dataFim}`)
-        
-        if (chartResponse.data && chartResponse.data.success) {
+        if (summaryResponse.data && summaryResponse.data.success) {
+          const transacoesPorDia = summaryResponse.data.data?.transacoesPorDia || []
+          
+          // Preparar dados para gráficos
+          const receitas = []
+          const despesas = []
+          
+          transacoesPorDia.forEach(dia => {
+            receitas.push({
+              data: dia.data,
+              valor: dia.totalReceitas
+            })
+            
+            despesas.push({
+              data: dia.data,
+              valor: dia.totalDespesas
+            })
+          })
+          
           this.chartData = {
-            receitas: chartResponse.data.data?.receitas || [],
-            despesas: chartResponse.data.data?.despesas || []
+            receitas: receitas,
+            despesas: despesas
           }
-        }
-        
-        // Buscar transações recentes
-        const transactionsResponse = await api.get('/Transacoes/Recentes?limite=5')
-        
-        if (transactionsResponse.data && transactionsResponse.data.success) {
-          this.transacoesRecentes = transactionsResponse.data.data || []
+          
+          // Obter transações recentes do resumo
+          const todasTransacoes = []
+          transacoesPorDia.forEach(dia => {
+            if (dia.transacoes && dia.transacoes.length > 0) {
+              todasTransacoes.push(...dia.transacoes)
+            }
+          })
+          
+          this.transacoesRecentes = todasTransacoes
+            .sort((a, b) => new Date(b.data) - new Date(a.data))
+            .slice(0, 5)
         }
       } catch (error) {
         this.error = error.response?.data?.message || error.message || 'Erro ao carregar dados do dashboard'
@@ -112,12 +130,30 @@ export const useDashboardStore = defineStore('dashboard', {
             dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0]
         }
         
-        const response = await api.get(`/GraficosFinanceiros?dataInicio=${dataInicio}&dataFim=${dataFim}`)
+        // Usar o ResumoFinanceiro para obter os dados para os gráficos
+        const response = await api.get(`/ResumoFinanceiro?dataInicio=${dataInicio}&dataFim=${dataFim}`)
         
         if (response.data && response.data.success) {
+          const transacoesPorDia = response.data.data?.transacoesPorDia || []
+          
+          const receitas = []
+          const despesas = []
+          
+          transacoesPorDia.forEach(dia => {
+            receitas.push({
+              data: dia.data,
+              valor: dia.totalReceitas
+            })
+            
+            despesas.push({
+              data: dia.data,
+              valor: dia.totalDespesas
+            })
+          })
+          
           this.chartData = {
-            receitas: response.data.data?.receitas || [],
-            despesas: response.data.data?.despesas || []
+            receitas: receitas,
+            despesas: despesas
           }
         } else {
           throw new Error(response.data?.message || 'Erro ao buscar dados dos gráficos')

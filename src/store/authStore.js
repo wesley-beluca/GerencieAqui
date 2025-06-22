@@ -22,15 +22,23 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const response = await api.post('/auth/login', credentials)
-        this.token = response.data.token
-        this.user = response.data.user
+        this.token = response.data.data.token
+        this.user = response.data.data.usuario
         
         localStorage.setItem('token', this.token)
         localStorage.setItem('user', JSON.stringify(this.user))
         
         return true
       } catch (error) {
-        this.error = error.response?.data?.message || 'Nome de usuário ou senha inválidos'
+        if (error.response?.data?.erros && Array.isArray(error.response.data.erros)) {
+          const errorMessages = error.response.data.erros
+            .map(err => err.message || err)
+            .filter(Boolean)
+            .join(', ')
+          this.error = errorMessages || 'Nome de usuário ou senha inválidos'
+        } else {
+          this.error = error.response?.data?.message || 'Nome de usuário ou senha inválidos'
+        }
         return false
       } finally {
         this.isLoading = false
@@ -43,7 +51,7 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const response = await api.post('/auth/register', userData)
-        return response.data
+        return response.data.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Erro ao registrar usuário'
         return false
@@ -58,7 +66,7 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const response = await api.post('/auth/forgot-password', { email })
-        return response.data
+        return response.data.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Erro ao processar solicitação'
         return false
@@ -73,7 +81,7 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const response = await api.post('/auth/reset-password', resetData)
-        return response.data
+        return response.data.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Erro ao redefinir senha'
         return false
@@ -96,12 +104,11 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const response = await api.get('/auth/profile')
-        this.user = response.data
+        this.user = response.data.data
         localStorage.setItem('user', JSON.stringify(this.user))
         return true
       } catch (error) {
         if (error.response?.status === 401) {
-          // Token inválido ou expirado
           this.logout()
         }
         this.error = error.response?.data?.message || 'Erro ao buscar perfil'

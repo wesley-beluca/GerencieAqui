@@ -42,10 +42,9 @@ export const useTransactionStore = defineStore('transactions', {
         
         // Adicionar parâmetros de data se fornecidos
         if (dataInicio && dataFim) {
-          // Formatar as datas para o formato esperado pelo backend
           const dataInicioFormatada = new Date(dataInicio).toISOString().split('T')[0];
           const dataFimFormatada = new Date(dataFim).toISOString().split('T')[0];
-          url += `?dataInicio=${dataInicioFormatada}&dataFim=${dataFimFormatada}`;
+          url += `/periodo?dataInicio=${dataInicioFormatada}&dataFim=${dataFimFormatada}`;
         }
         
         const response = await api.get(url);
@@ -77,15 +76,14 @@ export const useTransactionStore = defineStore('transactions', {
         
         const response = await api.get(`/ResumoFinanceiro?dataInicio=${dataInicioFormatada}&dataFim=${dataFimFormatada}`)
         
-        // Mapear diretamente os campos retornados pela API
-        // Manter os nomes originais para facilitar o uso no componente
-        this.summary = {
-          totalReceitas: response.data?.data?.totalReceitas || 0,
-          totalDespesas: response.data?.data?.totalDespesas || 0,
-          saldoAtual: response.data?.data?.saldoAtual || 0,
-          saldoFinal: response.data?.data?.saldoFinal || 0,
-          saldoAnterior: response.data?.data?.saldoAnterior || 0,
-          periodo: response.data?.data?.periodo || ''
+        if (response.data && response.data.success) {
+          this.summary = {
+            totalReceitas: response.data.data?.totalReceitas || 0,
+            totalDespesas: response.data.data?.totalDespesas || 0,
+            saldoFinal: response.data.data?.saldoFinal || 0,
+            saldoAnterior: response.data.data?.saldoAnterior || 0,
+            transacoesPorDia: response.data.data?.transacoesPorDia || []
+          }
         }
       } catch (error) {
         this.error = error.response?.data?.message || 'Erro ao buscar resumo'
@@ -179,7 +177,7 @@ export const useTransactionStore = defineStore('transactions', {
       try {
         const response = await api.delete(`/Transacoes/${id}`)
         
-        if (response.data && response.data.success !== false) {
+        if (response.data && response.data.success) {
           this.transactions = this.transactions.filter(t => t.id !== id)
           return true
         } else {
