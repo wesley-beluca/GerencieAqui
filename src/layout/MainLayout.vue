@@ -52,7 +52,6 @@ export default {
     })
     
     const userName = computed(() => {
-      // Tenta acessar o nome do usuário em diferentes propriedades possíveis
       return authStore.user?.nome || authStore.user?.username || authStore.user?.name || 'Usuário'
     })
     

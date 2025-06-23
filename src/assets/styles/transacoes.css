@@ -109,19 +109,15 @@
   width: 100%;
 }
 
-/* Garantir que o paginator fique sempre na mesma posição */
 .p-paginator {
   position: relative !important;
   bottom: 0 !important;
   width: 100%;
 }
 
-/* Garantir que o DataTable ocupe toda a largura disponível */
 .p-datatable {
   width: 100% !important;
 }
-
-/* DataTable customization */
 .p-datatable .p-datatable-header {
   background-color: var(--card-bg);
   color: var(--text-color);
@@ -137,14 +133,14 @@
 }
 
 .p-datatable .p-datatable-tbody > tr > td {
-  padding: 0.75rem 0.75rem !important; /* Ajustado para 0.75rem (12px) */
+  padding: 0.75rem 0.75rem !important;
   border-color: var(--border-color, #ddd);
 }
 
 .type-expense {
   background-color: rgba(244, 67, 54, 0.1);
   color: var(--danger-color);
-  padding: 0.5rem 0.75rem; /* Aumentado o padding */
+  padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 500;
@@ -153,7 +149,7 @@
 .type-income {
   background-color: rgba(76, 175, 80, 0.1);
   color: var(--success-color);
-  padding: 0.5rem 0.75rem; /* Aumentado o padding */
+  padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 500;
@@ -180,23 +176,21 @@
 .status-canceled {
   background-color: rgba(158, 158, 158, 0.1);
   color: var(--gray-color);
-  padding: 0.5rem 0.75rem; /* Aumentado o padding */
+  padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-/* Estilo para as tags do PrimeVue */
 .p-tag {
-  padding: 0.3rem 0.5rem !important; /* Ajustado o padding das tags */
+  padding: 0.3rem 0.5rem !important;
   margin: 0.15rem !important;
   font-size: 0.8rem !important;
   display: inline-block !important;
 }
 
-/* Estilo específico para as tags de tipo de transação */
 .transaction-tag {
-  padding: 0.5rem 0.8rem !important; /* Padding maior para as tags de tipo */
+  padding: 0.5rem 0.8rem !important;
   font-size: 0.85rem !important;
 }
 

@@ -14,7 +14,6 @@
   padding: 1rem;
 }
 
-/* Corrige a deformação dos calendários */
 .p-calendar {
   width: 100%;
 }
@@ -105,10 +104,6 @@
 
 .support-card-image img {
   width: 100%;
-}
-
-@media (max-width: 1200px) {
-  /* No changes needed for dashboard-summary since we're already using 2 columns */
 }
 
 @media (max-width: 768px) {
